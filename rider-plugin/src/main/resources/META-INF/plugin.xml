@@ -1,0 +1,53 @@
+<idea-plugin>
+    <id>com.qualimetry.csharp</id>
+    <name>Qualimetry C# Analyzer</name>
+    <vendor email="support@qualimetry.com" url="https://qualimetry.com">Qualimetry</vendor>
+
+    <description><![CDATA[
+        Rider plugin for the Qualimetry C# rule set. Once set up, Qualimetry findings appear in the
+        editor in real time as you type, run by Rider's bundled Roslyn host.
+
+        It does two things:
+        <ul>
+            <li>When you open a solution that does not yet reference the analyzer, it offers to add the
+                Qualimetry.CSharp.Analyzer NuGet package, so Rider's bundled Roslyn host runs the analyzer.
+                You can also add it manually to a selected C# project.</li>
+            <li>Syncs the active rule set from a SonarQube quality profile into a local .globalconfig
+                at the solution root, mapping each active rule and severity to a
+                dotnet_diagnostic.&lt;rule&gt;.severity entry.</li>
+        </ul>
+
+        Analysis is performed by the Roslyn analyzer once the NuGet is referenced. This plugin
+        provisions and configures it for you.
+    ]]></description>
+
+    <depends>com.intellij.modules.rider</depends>
+
+    <extensions defaultExtensionPointName="com.intellij">
+        <applicationConfigurable
+            parentId="tools"
+            instance="com.qualimetry.csharp.rider.QualimetryConfigurable"
+            id="com.qualimetry.csharp.rider.settings"
+            displayName="Qualimetry C#"/>
+        <applicationService
+            serviceImplementation="com.qualimetry.csharp.rider.QualimetrySettings"/>
+        <notificationGroup id="Qualimetry C#" displayType="BALLOON"/>
+        <postStartupActivity implementation="com.qualimetry.csharp.rider.AutoProvisionStartup"/>
+    </extensions>
+
+    <actions>
+        <action id="com.qualimetry.csharp.rider.SyncProfileAction"
+                class="com.qualimetry.csharp.rider.SyncProfileAction"
+                text="Qualimetry: Sync Rules From SonarQube Profile"
+                description="Writes a .globalconfig at the solution root from the active SonarQube quality profile.">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="com.qualimetry.csharp.rider.ProvisionAnalyzerAction"
+                class="com.qualimetry.csharp.rider.ProvisionAnalyzerAction"
+                text="Qualimetry: Add C# Analyzer To Project"
+                description="Adds the Qualimetry.CSharp.Analyzer PackageReference to the selected .csproj.">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
